@@ -19,13 +19,17 @@ const routes: RouteRecordRaw[] = [
 				component: () => import("@/views/user/User.vue")
 			},
 			{
-				path: "/resource",
-				component: () => import("@/views/resource/Resource.vue")
+				path: "/course",
+				component: () => import("@/views/course/Course.vue")
+			},
+			{
+				path: "/createCourse",
+				component: () => import("@/views/course/children/CreateCourse.vue")
 			},
 			{
 				path: "/category",
 				component: () => import("@/views/category/Category.vue")
-			},
+			}
 		]
 	},
 	{
@@ -41,7 +45,7 @@ const router = createRouter({
 
 router.beforeEach((to, form, next) => {
 	if (to.fullPath !== "/login" && !mainStore.token) {
-		return next('/login')
+		return next("/login")
 	}
 
 	next()

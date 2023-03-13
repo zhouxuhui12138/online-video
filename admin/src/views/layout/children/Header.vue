@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import router from '@/router'
 import useMainStore from '@/store/useMainStore'
+import avatar from '@/assets/images/avatar.png'
 
 const mainStore = useMainStore()
+
 
 const logout = () => {
   mainStore.romoveToken()
@@ -27,7 +29,7 @@ const logout = () => {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <el-image class="w-12 h-12 rounded-full ml-4" src="/src/assets/image/avatar.png" />
+      <el-image class="w-12 h-12 rounded-full ml-4" :src="avatar" />
     </div>
   </div>
 </template>

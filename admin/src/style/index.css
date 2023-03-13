@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-size: 16px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --main-color: #4c7acd;
+}
+
+.bg-color {
+  background-color: var(--main-color);
+}
+
+.color {
+  color: var(--main-color);
+}
+
+.el-button {
+  background-color: var(--el-button-bg-color);
+}
+
+.el-pagination {
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.el-form--inline .el-form-item {
+  margin-right: 16px;
+}

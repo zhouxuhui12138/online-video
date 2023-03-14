@@ -40,6 +40,7 @@ getData()
  * 添加/编辑/删除分类相关逻辑
  */
 let catId = ""
+const dialogTitle = ref("")
 const operatorCatIsShow = ref(false)
 const operatorCatData = reactive({
 	name: ""
@@ -75,9 +76,15 @@ const delCat = async (id: string) => {
 }
 
 const editCat = async (id: string) => {
+	dialogTitle.value = "编辑分类"
 	const res = await getCatApi(id)
 	catId = id
 	operatorCatData.name = res.data.name
+	operatorCatIsShow.value = true
+}
+
+const addCart = () => {
+	dialogTitle.value = "添加分类"
 	operatorCatIsShow.value = true
 }
 </script>
@@ -88,7 +95,7 @@ const editCat = async (id: string) => {
 			<el-input class="w-1/3 mr-4" v-model="catName" placeholder="请输入分类名称" />
 			<el-button type="primary" @click="getData">搜索</el-button>
 		</div>
-		<el-button type="primary" class="mb-4" @click="operatorCatIsShow = true">添加分类</el-button>
+		<el-button type="primary" class="mb-4" @click="addCart">添加分类</el-button>
 
 		<el-row :gutter="12">
 			<el-col :span="6" v-for="item in catList" :key="item.id">
@@ -129,7 +136,7 @@ const editCat = async (id: string) => {
 	</div>
 
 	<!-- 添加分类 -->
-	<el-dialog v-if="operatorCatIsShow" v-model="operatorCatIsShow" title="添加分类" @close="closeDialog">
+	<el-dialog v-if="operatorCatIsShow" v-model="operatorCatIsShow" :title="dialogTitle" @close="closeDialog">
 		<el-form :model="operatorCatData" ref="editFormRef">
 			<el-form-item label="分类名称:" :rules="{ required: true, message: '请填写名称', trigger: 'blur' }">
 				<el-input v-model="operatorCatData.name" autocomplete="off" />

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getUserList, delUserApi, getUserApi, editUserApi } from "@/api/user"
-import { ElMessageBox, ElMessage, FormInstance,FormRules } from "element-plus"
+import { ElMessageBox, ElMessage, FormInstance, FormRules } from "element-plus"
 import { ref, reactive } from "vue"
 
 // table数据
@@ -73,7 +73,8 @@ const editFormData = ref<any>({
 	username: "",
 	email: "",
 	sex: "",
-	status: ""
+	status: "",
+	password: ""
 })
 const rules = reactive<FormRules>({
 	username: [{ required: true, message: "请填写用户名", trigger: "blur" }],
@@ -147,11 +148,11 @@ async function submit(formEl: FormInstance | undefined) {
 
 	<!-- 编辑用户 -->
 	<el-dialog v-if="editIsShow" v-model="editIsShow" title="编辑用户" @close="closeEditUser">
-		<el-form :model="editFormData" ref="editFormRef">
-			<el-form-item label="姓名:" prop="username" :rules="rules.username">
+		<el-form :model="editFormData" ref="editFormRef" :rules="rules">
+			<el-form-item label="姓名:" prop="username">
 				<el-input v-model="editFormData.username" autocomplete="off" />
 			</el-form-item>
-			<el-form-item label="邮箱:" :rules="rules.email">
+			<el-form-item label="邮箱:" prop="email">
 				<el-input v-model="editFormData.email" autocomplete="off" />
 			</el-form-item>
 			<el-form-item label="性别:">
@@ -165,6 +166,9 @@ async function submit(formEl: FormInstance | undefined) {
 					<el-radio label="启用" />
 					<el-radio label="禁用" />
 				</el-radio-group>
+			</el-form-item>
+			<el-form-item label="重置密码:">
+				<el-input v-model="editFormData.password" autocomplete="off" placeholder="不填写默认使用原密码" />
 			</el-form-item>
 		</el-form>
 		<template #footer>

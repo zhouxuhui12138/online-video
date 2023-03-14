@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { ref, reactive } from "vue"
-import { addCatApi, getAllCatApi, delCatApi, getCatApi, editCatApi } from "@/api/category/index"
-import { ElMessage, ElMessageBox } from "element-plus"
+import { ref } from "vue"
+import { getAllCourseApi } from '@/api/course/index'
 import { useRouter } from "vue-router"
 
 const router = useRouter()
@@ -15,7 +14,7 @@ const catPage = ref(1)
 const catSize = ref(8)
 
 const getPage = async (page: number, size: number) => {
-	const { data } = await getAllCatApi({ page, size, data: { name: catName.value } })
+	const { data } = await getAllCourseApi({ page, size, data: { name: catName.value } })
 	total.value = data.total
 	catList.value = data.records
 	catPage.value = data.current
@@ -42,7 +41,7 @@ getData()
  * 创建课程
  */
 const creatCourse = () => {
-  router.push('/createCourse')
+	router.push("/createCourse")
 }
 </script>
 

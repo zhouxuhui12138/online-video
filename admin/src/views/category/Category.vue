@@ -117,7 +117,7 @@ const addCart = () => {
 					<div class="flex justify-between">
 						<div>
 							<span class="color mr-2">{{ item.courseSize }}</span>
-							<span class="text-xs text-gray-600">个视频</span>
+							<span class="text-xs text-gray-600">个课程</span>
 						</div>
 					</div>
 				</el-card>

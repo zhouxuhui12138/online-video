@@ -1,47 +1,62 @@
 <script lang="ts" setup>
 import { ref } from "vue"
-import { getAllCourseApi } from '@/api/course/index'
+import { getAllCourseApi, delCourseApi } from "@/api/course/index"
+import { ElMessageBox, ElMessage } from "element-plus"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
+
 /**
  * 页面渲染相关逻辑
  */
 const catName = ref()
-const catList = ref()
+const courseList = ref()
 const total = ref(0)
-const catPage = ref(1)
-const catSize = ref(8)
+const coursePage = ref(1)
+const courseSize = ref(8)
 
 const getPage = async (page: number, size: number) => {
 	const { data } = await getAllCourseApi({ page, size, data: { name: catName.value } })
 	total.value = data.total
-	catList.value = data.records
-	catPage.value = data.current
-	catSize.value = data.size
+	courseList.value = data.records
+	coursePage.value = data.current
+	courseSize.value = data.size
 }
 
 const getData = () => {
-	getPage(catPage.value, catSize.value)
+	getPage(coursePage.value, courseSize.value)
 }
 
 const pageChange = (page: number) => {
-	catPage.value = page
+	coursePage.value = page
 	getData()
 }
 
 const sizeChange = (size: number) => {
-	catSize.value = size
+	courseSize.value = size
 	getData()
 }
 
 getData()
 
-/**
- * 创建课程
- */
+// 创建课程
 const creatCourse = () => {
 	router.push("/createCourse")
+}
+
+// 删除课程
+const delCourse = async (id: string) => {
+	try {
+		await ElMessageBox.confirm("是否要删除吗?", "提醒", { type: "error" })
+		await delCourseApi(id)
+		ElMessage.success("删除成功")
+		getData()
+	} catch (error) {}
+}
+
+// 编辑课程
+const editCourse = (id: string) => {
+	router.push({ path: "/createCourse", query: { id } })
 }
 </script>
 
@@ -53,11 +68,25 @@ const creatCourse = () => {
 		</div>
 		<el-button type="primary" class="mb-4" @click="creatCourse">创建课程</el-button>
 
+		<!-- table -->
+		<el-table :data="courseList" border>
+			<el-table-column type="index" width="50" align="center" />
+			<el-table-column prop="name" label="姓名" />
+			<el-table-column prop="categoryId" label="分类" />
+			<el-table-column prop="description" label="描述" />
+			<el-table-column label="操作" align="center" width="180">
+				<template #default="{ row }">
+					<el-button size="small" type="primary" @click="editCourse(row.id)">编辑</el-button>
+					<el-button size="small" type="danger" @click="delCourse(row.id)">删除</el-button>
+				</template>
+			</el-table-column>
+		</el-table>
+
 		<!-- 分页 -->
 		<el-pagination
 			layout="prev, pager, next, sizes"
 			:page-sizes="[4, 8, 12, 16]"
-			:default-page-size="catSize"
+			:default-page-size="courseSize"
 			:total="total"
 			@size-change="sizeChange"
 			@current-change="pageChange"

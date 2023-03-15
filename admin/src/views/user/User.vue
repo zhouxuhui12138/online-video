@@ -42,6 +42,7 @@ async function delUser(id: string) {
 	try {
 		await ElMessageBox.confirm("是否要删除吗?", "提醒", { type: "error" })
 		await delUserApi(id)
+		ElMessage.success('删除成功')
 		getTable()
 	} catch (error) {}
 }

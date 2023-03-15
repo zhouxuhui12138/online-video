@@ -1,18 +1,16 @@
 <script lang="ts" setup>
 import { ref, reactive } from "vue"
 import { ElMessage, FormInstance, FormRules, UploadProps } from "element-plus"
-import { useRouter } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import useMainStore from "@/store/useMainStore"
 import { UPLOAD_URL } from "@/config/constant"
-import { createCourseApi } from "@/api/course"
+import { createCourseApi, getCourseApi, editCourseApi } from "@/api/course"
 import SelectCategory from "@/components/select-category/SelectCategory.vue"
 
 const router = useRouter()
+const route = useRoute()
 const mainStroe = useMainStore()
 
-/**
- * 表单
- */
 const baseInfoRef = ref<FormInstance | undefined>()
 const avatarUrl = ref("")
 const categoryName = ref("")
@@ -20,7 +18,7 @@ const categoryName = ref("")
 const headrs = {
 	Authorization: mainStroe.token
 }
-const baseInfoData = reactive({
+const baseInfoData = ref({
 	avatar: "",
 	categoryId: "",
 	description: "",
@@ -37,9 +35,18 @@ const baseInfoRules = reactive<FormRules>({
 const handleAvatarSuccess: UploadProps["onSuccess"] = (response, uploadFile) => {
 	avatarUrl.value = URL.createObjectURL(uploadFile.raw!)
 	if (response.code === 200) {
-		baseInfoData.avatar = response.msg
+		baseInfoData.value.avatar = response.data
 		ElMessage.success("上传成功")
 	}
+}
+
+// 如果有id则回显
+if (route.query.id && typeof route.query.id === "string") {
+	getCourseApi(route.query.id).then(res => {
+		baseInfoData.value = res.data
+		categoryName.value = "test"
+		avatarUrl.value = "/common/Download/68817f85-cb19-40ac-8306-f83b23b8fdee.png"
+	})
 }
 
 // 创建课程
@@ -47,8 +54,13 @@ const submit = async () => {
 	if (!baseInfoRef.value) return
 	await baseInfoRef.value.validate(async (valid, fields) => {
 		if (valid) {
-			const res = await createCourseApi(baseInfoData)
-			ElMessage.success(res.msg)
+			let res = null
+			if (route.query.id) {
+				res = await editCourseApi(baseInfoData.value)
+			} else {
+				res = await createCourseApi(baseInfoData.value)
+			}
+			ElMessage.success(res?.msg)
 			setTimeout(() => {
 				router.back()
 			}, 500)
@@ -56,17 +68,13 @@ const submit = async () => {
 	})
 }
 
-/**
- * 挑选分类
- */
 const selectCatIsShow = ref(false)
-
 const selectCatClose = () => {
 	selectCatIsShow.value = false
 }
 
 const selectSubmit = (category: any) => {
-	baseInfoData.categoryId = category.id
+	baseInfoData.value.categoryId = category.id
 	categoryName.value = category.name
 	selectCatIsShow.value = false
 }

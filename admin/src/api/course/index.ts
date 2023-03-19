@@ -20,7 +20,22 @@ export const delCourseApi = (id: string) => {
 	return http.delete(`/course/${id}`)
 }
 
-// 更新分类
+// 更新课程
 export const editCourseApi = (data: any) => {
 	return http.put(`/course`, data)
+}
+
+// 添加课程片段
+export const addSectionApi = (data: any) => {
+	return http.post(`/episode`, data)
+}
+
+// 删除课程片段
+export const delSectionApi = (id: string) => {
+	return http.delete(`/episode/${id}`)
+}
+
+// 更新课程片段
+export const editSectionApi = (data: any) => {
+	return http.put(`/episode`, data)
 }

@@ -27,6 +27,10 @@ const routes: RouteRecordRaw[] = [
 				component: () => import("@/views/course/children/CreateCourse.vue")
 			},
 			{
+				path: "/addSection",
+				component: () => import("@/views/course/children/AddSection.vue")
+			},
+			{
 				path: "/category",
 				component: () => import("@/views/category/Category.vue")
 			}

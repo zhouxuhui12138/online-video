@@ -58,6 +58,11 @@ const delCourse = async (id: string) => {
 const editCourse = (id: string) => {
 	router.push({ path: "/createCourse", query: { id } })
 }
+
+// 关联章节
+const addSection = (id: string) => {
+	router.push({ path: "/addSection", query: { id } })
+}
 </script>
 
 <template>
@@ -72,10 +77,12 @@ const editCourse = (id: string) => {
 		<el-table :data="courseList" border>
 			<el-table-column type="index" width="50" align="center" />
 			<el-table-column prop="name" label="姓名" />
-			<el-table-column prop="categoryId" label="分类" />
+			<el-table-column prop="categoryName" label="分类" />
 			<el-table-column prop="description" label="描述" />
-			<el-table-column label="操作" align="center" width="180">
+			<el-table-column prop="episodeSize" label="章节" />
+			<el-table-column label="操作" align="center" width="240">
 				<template #default="{ row }">
+					<el-button size="small" type="primary" @click="addSection(row.id)">关联章节</el-button>
 					<el-button size="small" type="primary" @click="editCourse(row.id)">编辑</el-button>
 					<el-button size="small" type="danger" @click="delCourse(row.id)">删除</el-button>
 				</template>

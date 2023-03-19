@@ -48,7 +48,7 @@ server.interceptors.response.use(
 			case 401:
 				message = "token 失效，请重新登录"
 				mainStore.romoveToken()
-				location.reload(true)
+				location.reload()
 				break
 			case 403:
 				message = "拒绝访问"

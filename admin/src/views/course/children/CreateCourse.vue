@@ -3,7 +3,7 @@ import { ref, reactive } from "vue"
 import { ElMessage, FormInstance, FormRules, UploadProps } from "element-plus"
 import { useRoute, useRouter } from "vue-router"
 import useMainStore from "@/store/useMainStore"
-import { UPLOAD_URL } from "@/config/constant"
+import { UPLOAD_URL, DOWNLOAD_URL } from "@/config/constant"
 import { createCourseApi, getCourseApi, editCourseApi } from "@/api/course"
 import SelectCategory from "@/components/select-category/SelectCategory.vue"
 
@@ -31,6 +31,18 @@ const baseInfoRules = reactive<FormRules>({
 	avatar: [{ required: true, message: "请上传封面", trigger: "blur" }]
 })
 
+// 封面上传前的回调
+const beforeAvatarUpload: UploadProps["beforeUpload"] = rawFile => {
+	const types = ["image/jpg", "image/jpeg", "image/png"]
+	console.log(rawFile.type)
+	if (!types.includes(rawFile.type)) {
+		ElMessage.error("文件格式不正确！")
+		return false
+	}
+
+	return true
+}
+
 // 封面上传成功回调
 const handleAvatarSuccess: UploadProps["onSuccess"] = (response, uploadFile) => {
 	avatarUrl.value = URL.createObjectURL(uploadFile.raw!)
@@ -44,8 +56,8 @@ const handleAvatarSuccess: UploadProps["onSuccess"] = (response, uploadFile) => 
 if (route.query.id && typeof route.query.id === "string") {
 	getCourseApi(route.query.id).then(res => {
 		baseInfoData.value = res.data
-		categoryName.value = "test"
-		avatarUrl.value = "/common/Download/68817f85-cb19-40ac-8306-f83b23b8fdee.png"
+		categoryName.value = res.data.categoryName
+		avatarUrl.value = DOWNLOAD_URL + res.data.avatar
 	})
 }
 
@@ -101,7 +113,8 @@ const selectSubmit = (category: any) => {
 					:headers="headrs"
 					:show-file-list="false"
 					:on-success="handleAvatarSuccess"
-					accept="image/jpg,image/jpeg,image/png,image/gif,image/bmp"
+					:before-upload="beforeAvatarUpload"
+					accept=".jpg, .jpeg, .png,"
 				>
 					<img v-if="avatarUrl" :src="avatarUrl" class="avatar" />
 					<el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
@@ -114,7 +127,7 @@ const selectSubmit = (category: any) => {
 	</div>
 
 	<!-- 选择分类 -->
-	<SelectCategory :is-show="selectCatIsShow" @close="selectCatClose" @save="selectSubmit" />
+	<SelectCategory v-if="selectCatIsShow" :is-show="selectCatIsShow" @close="selectCatClose" @save="selectSubmit" />
 </template>
 
 <style scoped>

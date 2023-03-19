@@ -12,7 +12,7 @@ import Menu from './children/Menu.vue'
       <el-aside width="200px">
         <Menu />
       </el-aside>
-      <el-main class="p-4">
+      <el-main>
         <router-view></router-view>
       </el-main>
     </el-container>

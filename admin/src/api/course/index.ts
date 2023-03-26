@@ -39,3 +39,8 @@ export const delSectionApi = (id: string) => {
 export const editSectionApi = (data: any) => {
 	return http.put(`/episode`, data)
 }
+
+// 查询课程片段详情
+export const getSectionDetailApi = (id: string) => {
+	return http.get(`/episode/${id}`)
+}

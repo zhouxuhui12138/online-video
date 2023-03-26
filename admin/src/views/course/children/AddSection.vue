@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { useRoute, useRouter } from "vue-router"
-import { UPLOAD_URL } from "@/config/constant"
-import { UploadProps, ElMessage, ElMessageBox } from "element-plus"
-import { getCourseApi, addSectionApi, delSectionApi, editSectionApi } from "@/api/course"
-import { ref } from "vue"
+import { DOWNLOAD_URL, UPLOAD_URL } from "@/config/constant"
+import { UploadProps, ElMessage, ElMessageBox, UploadProgressEvent } from "element-plus"
+import { getCourseApi, addSectionApi, delSectionApi, editSectionApi, getSectionDetailApi } from "@/api/course"
+import { ref, watch } from "vue"
 import useMainStore from "@/store/useMainStore"
 
 const mainStroe = useMainStore()
@@ -16,6 +16,12 @@ const headrs = {
 const courseId = route.query.id as string // 课程id
 const menus = ref<any>([]) // 章节数组
 const currentMenu = ref("") // 当前选中的章节
+const isProgress = ref(false) // 是否显示上传进度
+const progress = ref(0) // 上传进度
+const isPreview = ref(false) // 是否预览视频
+const videoUrl = ref("") // 视频链接
+const menuDetail = ref() // 章节详情数据
+const fileList = ref()
 
 // 获取章节数据
 const getData = async () => {
@@ -27,8 +33,6 @@ const getData = async () => {
 	menus.value.forEach((item: any) => {
 		item.newName = ""
 	})
-
-  console.log(currentMenu.value)
 }
 getData()
 
@@ -59,6 +63,15 @@ const editMenuName = async (id: string, name: string) => {
 }
 
 // 切换章节
+watch(
+	() => currentMenu.value,
+	async () => {
+		const { data } = await getSectionDetailApi(currentMenu.value)
+		menuDetail.value = data
+		data.video ? (isPreview.value = true) : (isPreview.value = false)
+		videoUrl.value = DOWNLOAD_URL + data.video
+	}
+)
 
 // 上传前的回调
 const beforeAvatarUpload: UploadProps["beforeUpload"] = rawFile => {
@@ -69,6 +82,20 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = rawFile => {
 	}
 
 	return true
+}
+
+// 上传时的回调
+const uploadProgress = (event: UploadProgressEvent) => {
+	const fileProgress = Math.floor(event.percent)
+	isProgress.value = true
+	progress.value = fileProgress
+}
+
+// 上传成功的回调
+const uploadSuccess: UploadProps["onSuccess"] = async response => {
+	await editSectionApi({ id: currentMenu.value, video: response.data, courseId })
+	currentMenu.value = currentMenu.value
+	ElMessage.success("上传成功")
 }
 </script>
 
@@ -106,24 +133,30 @@ const beforeAvatarUpload: UploadProps["beforeUpload"] = rawFile => {
 			<div class="flex-1 ml-4 pl-4 border-l border-cyan-600">
 				<div v-if="menus.length !== 0">
 					<!-- 上传 -->
-					<el-upload
-						drag
-						:action="UPLOAD_URL"
-						:headers="headrs"
-						accept=".mp4, .ogg, .webm"
-						:show-file-list="false"
-						:before-upload="beforeAvatarUpload"
-						v-if="true"
-					>
-						<el-icon class="el-icon--upload"><upload-filled /></el-icon>
-						<div class="el-upload__text">请上传视频 (mp4/ogg/webm)</div>
-					</el-upload>
+					<div v-show="!isPreview">
+						<el-upload
+							drag
+							:action="UPLOAD_URL"
+							:headers="headrs"
+							accept=".mp4, .ogg, .webm"
+							:before-upload="beforeAvatarUpload"
+							:on-success="uploadSuccess"
+							:on-progress="uploadProgress"
+							:limit="1"
+							:show-file-list="false"
+						>
+							<el-icon class="el-icon--upload"><upload-filled /></el-icon>
+							<div class="el-upload__text">请上传视频 (mp4/ogg/webm)</div>
+						</el-upload>
+						<el-progress class="mt-4" :text-inside="true" :stroke-width="26" :percentage="progress" v-if="isProgress" />
+						<div v-if="menuDetail?.video" class="text-blue-700 mt-3 cursor-pointer" @click="isPreview = true">
+							{{ menuDetail.video }}
+						</div>
+					</div>
 					<!-- 展示 -->
-					<div class="w-full h-full" v-else>
-						<video
-							controls
-							src="//sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/mp4/xgplayer-demo-720p.mp4"
-						></video>
+					<div class="w-full h-full" v-show="isPreview">
+						<el-button @click="isPreview = false">重新上传</el-button>
+						<video class="mt-4" style="height: 500px" controls :src="videoUrl"></video>
 					</div>
 				</div>
 				<div v-else>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from "vue"
-import { getAllCourseApi, delCourseApi } from "@/api/course/index"
+import { getAllCourseApi, delCourseApi, editCourseApi } from "@/api/course/index"
 import { ElMessageBox, ElMessage } from "element-plus"
 import { useRouter } from "vue-router"
 
@@ -63,6 +63,15 @@ const editCourse = (id: string) => {
 const addSection = (id: string) => {
 	router.push({ path: "/addSection", query: { id } })
 }
+
+// 启用课程
+const useCourse = async (row: any) => {
+	const data = JSON.parse(JSON.stringify(row))
+	data.status = data.status === 1 ? 0 : 1
+	await editCourseApi(data)
+	await getData()
+	ElMessage.success("操作成功")
+}
 </script>
 
 <template>
@@ -80,10 +89,13 @@ const addSection = (id: string) => {
 			<el-table-column prop="categoryName" label="分类" />
 			<el-table-column prop="description" label="描述" />
 			<el-table-column prop="episodeSize" label="章节" />
-			<el-table-column label="操作" align="center" width="240">
+			<el-table-column label="操作" align="center" width="300">
 				<template #default="{ row }">
 					<el-button size="small" type="primary" @click="addSection(row.id)">关联章节</el-button>
 					<el-button size="small" type="primary" @click="editCourse(row.id)">编辑</el-button>
+					<el-button size="small" type="primary" @click="useCourse(row)">
+						{{ row.status == 0 ? "禁用" : "启用" }}
+					</el-button>
 					<el-button size="small" type="danger" @click="delCourse(row.id)">删除</el-button>
 				</template>
 			</el-table-column>
